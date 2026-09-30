@@ -2,11 +2,11 @@ import os
 import glob
 import duckdb
 import pandas as pd
-
+import numpy as np
 # =============================================================
 #  CONFIGURATION — change the dataset name here to switch
 # =============================================================
-DATASET = "dataset1-1"   # e.g. "dataset1-1", "dataset2-5", "dataset3-3"
+DATASET = "dataset1-9"   # e.g. "dataset1-1", "dataset2-5", "dataset3-3"
 # =============================================================
 
 # Resolve path to the .sql file
@@ -56,10 +56,42 @@ conn.close()
 
 # --- Example using dataset1-1 (customers + orders) ---
 # Feel free to modify, delete, or replace this with your own code
-customers = tables['customers']
-orders    = tables['orders']
-merged_df = pd.merge(customers, orders, on='customer_id', how='inner')
-report_df = merged_df.sort_values(by="order_date", ascending=True)
+#customers = tables['customers']
+#orders    = tables['orders']
 
-print("=== Merged & Sorted Report ===")
-print(report_df.to_string(index=False))
+# merged_df = pd.merge(customers, orders, on='customer_id', how='inner')
+
+# ordered_df = merged_df[['order_id', 
+#                        'name', 
+#                        'segment',
+#                        'order_date',
+#                        'amount']].sort_values(by='order_date', 
+#                                              ascending=True)
+
+# print(ordered_df.to_string(index=False))
+
+customers = tables['customers']
+orders = tables['orders']
+products = tables['products']
+order_items = tables['order_items']
+
+report = pd.merge(
+                pd.merge(
+                    pd.merge(customers, 
+                            orders, on='customer_id', how='left'), 
+                    order_items, on='order_id', how='left'), 
+                products, on='product_id', how='left')
+
+report['quantity'] = report['quantity'].fillna(0)
+report['expenditure'] = report['quantity'] * report['unit_price'].fillna(0.00)
+
+detailed_report = report.groupby([ 'customer_id', 'name', 'tier']).agg(
+                    total_quantity = ('quantity', np.sum),
+                    total_expenditure = ('expenditure', np.sum)
+                )
+detailed_report['total_quantity'] = detailed_report['total_quantity'].fillna(0)
+detailed_report['total_expenditure'] = detailed_report['total_expenditure'].fillna(0.00)
+
+detailed_report = detailed_report.sort_values(by='total_expenditure', ascending=False)
+
+print(detailed_report)

@@ -19,3 +19,27 @@ INSERT INTO transactions (txn_id, customer_id, payment_method, amount, status) V
 ('TXN-07', 5, 'Apple Pay', 95.00, 'Completed'),
 ('TXN-08', 3, 'Bank Wire', 3400.00, 'Completed'),
 ('TXN-09', 1, 'Apple Pay', 40.00, 'Completed');
+
+SELECT 
+    payment_method,
+    COUNT(txn_id) as total_attempts,
+    COUNT(distinct customer_id) as unique_customers,
+    SUM(
+    CASE
+        WHEN status = 'Completed'
+        THEN amount
+        ELSE 0 
+    END
+    ) as completed_volume,
+    COUNT(
+    CASE
+        WHEN status = 'Refunded'
+        THEN 1
+        ELSE 0
+    END
+    ) as refund_count
+FROM 
+    transactions
+GROUP BY
+    payment_method
+ORDER BY completed_volume DESC;

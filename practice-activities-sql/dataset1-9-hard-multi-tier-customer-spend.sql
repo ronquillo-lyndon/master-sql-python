@@ -55,3 +55,19 @@ INSERT INTO order_items (item_id, order_id, product_id, quantity, unit_price) VA
 (3, 5002, 103, 5, 250.00),
 (4, 5003, 104, 2, 400.00),
 (5, 5004, 101, 1, 1500.00);
+
+SELECT 
+    c.customer_id,
+    c.name,
+    c.tier,
+    COALESCE(COUNT(oi.quantity), 0) as 'total_quantity',
+    COALESCE(SUM(oi.quantity * oi.unit_price), 0.0) as 'total_expenditure'
+FROM 
+    customers c 
+    LEFT JOIN orders o ON c.customer_id = o.customer_id
+    LEFT JOIN order_items oi ON o.order_id = oi.order_id
+    LEFT JOIN products p ON oi.product_id = p.product_id
+GROUP BY
+    c.customer_id, c.name, c.tier
+ORDER BY
+    total_expenditure DESC;

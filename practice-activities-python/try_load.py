@@ -6,7 +6,7 @@ import numpy as np
 # =============================================================
 #  CONFIGURATION — change the dataset name here to switch
 # =============================================================
-DATASET = "dataset1-9"   # e.g. "dataset1-1", "dataset2-5", "dataset3-3"
+DATASET = "dataset2-4"   # e.g. "dataset1-1", "dataset2-5", "dataset3-3"
 # =============================================================
 
 # Resolve path to the .sql file
@@ -70,28 +70,54 @@ conn.close()
 
 # print(ordered_df.to_string(index=False))
 
-customers = tables['customers']
-orders = tables['orders']
-products = tables['products']
-order_items = tables['order_items']
+# customers = tables['customers']
+# orders = tables['orders']
+# products = tables['products']
+# order_items = tables['order_items']
 
-report = pd.merge(
-                pd.merge(
-                    pd.merge(customers, 
-                            orders, on='customer_id', how='left'), 
-                    order_items, on='order_id', how='left'), 
-                products, on='product_id', how='left')
+# report = pd.merge(
+#                 pd.merge(
+#                     pd.merge(customers, 
+#                             orders, on='customer_id', how='left'), 
+#                     order_items, on='order_id', how='left'), 
+#                 products, on='product_id', how='left')
 
-report['quantity'] = report['quantity'].fillna(0)
-report['expenditure'] = report['quantity'] * report['unit_price'].fillna(0.00)
+# report['quantity'] = report['quantity'].fillna(0)
+# report['expenditure'] = report['quantity'] * report['unit_price'].fillna(0.00)
 
-detailed_report = report.groupby([ 'customer_id', 'name', 'tier']).agg(
-                    total_quantity = ('quantity', np.sum),
-                    total_expenditure = ('expenditure', np.sum)
-                )
-detailed_report['total_quantity'] = detailed_report['total_quantity'].fillna(0)
-detailed_report['total_expenditure'] = detailed_report['total_expenditure'].fillna(0.00)
+# detailed_report = report.groupby([ 'customer_id', 'name', 'tier']).agg(
+#                     total_quantity = ('quantity', np.sum),
+#                     total_expenditure = ('expenditure', np.sum)
+#                 )
+# detailed_report['total_quantity'] = detailed_report['total_quantity'].fillna(0)
+# detailed_report['total_expenditure'] = detailed_report['total_expenditure'].fillna(0.00)
 
-detailed_report = detailed_report.sort_values(by='total_expenditure', ascending=False)
+# detailed_report = detailed_report.sort_values(by='total_expenditure', ascending=False)
 
-print(detailed_report)
+# print(detailed_report)
+
+# sales_reps = tables['sales_reps']
+
+# sales_reps['regional_rank'] = (
+#     sales_reps.groupby('region')['closed_revenue']
+#         .rank(method='dense', ascending=False)
+#         .astype(int)
+#     )
+
+# sales_reps =  sales_reps.sort_values(by=['region', 'regional_rank']
+#                                      ).reset_index(drop=True)
+
+# print(sales_reps)
+
+user_events = tables['user_events']
+
+user_events['event_time'] = pd.to_datetime(user_events['event_time'])
+user_events['previous_page'] = user_events['page_name']
+user_events['next_page'] = (user_events.groupby('session_id')['previous_page']
+                            .shift(-1)
+                            .fillna('SESSION_END')
+                            )
+user_events = user_events.sort_values(by=['session_id', 'event_time'], ascending=True)
+print(user_events)
+
+

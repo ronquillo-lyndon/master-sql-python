@@ -28,7 +28,7 @@ SELECT
     CASE
         WHEN status = 'Completed'
         THEN amount
-        ELSE 0 
+        ELSE 0
     END
     ) as completed_volume,
     COUNT(

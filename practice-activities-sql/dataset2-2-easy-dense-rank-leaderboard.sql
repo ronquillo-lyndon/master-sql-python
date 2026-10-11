@@ -16,3 +16,14 @@ INSERT INTO sales_reps (rep_id, rep_name, region, closed_revenue) VALUES
 (5, 'Evan Wright', 'South', 180000.00),
 (6, 'Fiona Gallagher', 'South', 180000.00),
 (7, 'George Clark', 'South', 130000.00);
+
+
+SELECT 
+    *,
+    DENSE_RANK() OVER(
+        PARTITION BY region
+        ORDER BY closed_revenue DESC
+    ) as regional_rank
+FROM
+    sales_reps
+ORDER BY region ASC, regional_rank ASC;

@@ -16,3 +16,15 @@ INSERT INTO user_events (event_id, session_id, event_time, page_name) VALUES
 (5, 'SESS-B', '2024-03-10 11:15:00', 'landing_page'),
 (6, 'SESS-B', '2024-03-10 11:17:30', 'signup_form'),
 (7, 'SESS-B', '2024-03-10 11:19:00', 'dashboard');
+
+
+SELECT 
+    session_id,
+    event_time,
+    page_name,
+    COALESCE(LEAD(page_name) OVER(
+    PARTITION BY session_id
+    ORDER BY event_time ASC
+    ), 'SESSION_END') as next_page
+FROM user_events
+ORDER BY session_id ASC, event_time ASC;

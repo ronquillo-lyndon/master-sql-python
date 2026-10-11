@@ -15,3 +15,16 @@ INSERT INTO user_transactions (txn_id, user_id, txn_time, amount) VALUES
 ('TXN-104', 2, '2024-01-01 11:00:00', 300.00),
 ('TXN-105', 2, '2024-01-03 16:45:00', 85.00),
 ('TXN-106', 3, '2024-01-02 10:10:00', 500.00);
+
+SELECT 
+    txn_id,
+    user_id,
+    txn_time,
+    amount,
+    ROW_NUMBER() OVER(
+        PARTITION BY user_id
+        ORDER BY txn_time ASC
+    ) as transaction_seq
+FROM
+    user_transactions
+ORDER BY user_id ASC, transaction_seq ASC;

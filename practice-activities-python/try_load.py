@@ -6,7 +6,7 @@ import numpy as np
 # =============================================================
 #  CONFIGURATION — change the dataset name here to switch
 # =============================================================
-DATASET = "dataset2-4"   # e.g. "dataset1-1", "dataset2-5", "dataset3-3"
+DATASET = "dataset2-5"   # e.g. "dataset1-1", "dataset2-5", "dataset3-3"
 # =============================================================
 
 # Resolve path to the .sql file
@@ -109,15 +109,18 @@ conn.close()
 
 # print(sales_reps)
 
-user_events = tables['user_events']
+daily_financials = tables['daily_financials']
 
-user_events['event_time'] = pd.to_datetime(user_events['event_time'])
-user_events['previous_page'] = user_events['page_name']
-user_events['next_page'] = (user_events.groupby('session_id')['previous_page']
-                            .shift(-1)
-                            .fillna('SESSION_END')
-                            )
-user_events = user_events.sort_values(by=['session_id', 'event_time'], ascending=True)
-print(user_events)
+daily_financials['record_date'] = pd.to_datetime(daily_financials['record_date'])
 
+daily_financials['running_cumulative_revenue'] = daily_financials[
+    'daily_revenue'].cumsum()
 
+daily_financials['running_cumulative_subscribers'] = daily_financials[
+    'new_subscribers'].cumsum()
+
+print(daily_financials[['record_date', 
+                       'daily_revenue', 
+                       'running_cumulative_revenue',
+                       'new_subscribers',
+                       'running_cumulative_subscribers']])

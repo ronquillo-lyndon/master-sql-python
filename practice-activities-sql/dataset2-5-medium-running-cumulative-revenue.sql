@@ -16,3 +16,19 @@ INSERT INTO daily_financials (record_date, new_subscribers, daily_revenue) VALUE
 ('2024-01-06', 25, 2750.00),
 ('2024-01-07', 28, 2900.00),
 ('2024-01-08', 35, 3800.00);
+
+SELECT
+    record_date,
+    daily_revenue,
+    SUM(daily_revenue) OVER(
+        ORDER BY record_date ASC
+        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    ) AS running_cumulative_revenue,
+    new_subscribers,
+    SUM(new_subscribers) OVER(
+        ORDER BY record_date ASC
+        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    ) AS running_cumulative_subscribers
+FROM
+    daily_financials
+ORDER BY record_date ASC;

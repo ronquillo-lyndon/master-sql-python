@@ -19,3 +19,19 @@ INSERT INTO sensor_telemetry (reading_id, sensor_id, reading_day, temperature_ce
 (8, 'SENSOR-01', '2024-04-08', 23.00),
 (9, 'SENSOR-01', '2024-04-09', 22.80),
 (10, 'SENSOR-01', '2024-04-10', 21.90);
+
+
+SELECT 
+    reading_id,
+    sensor_id,
+    reading_day,
+    temperature_celsius,
+    ROUND(AVG(temperature_celsius) OVER(
+    PARTITION BY sensor_id
+    ORDER BY reading_day
+    ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
+    ), 2) AS three_day_avg_temp
+FROM
+    sensor_telemetry
+ORDER BY
+    sensor_id ASC, reading_day ASC;

@@ -6,7 +6,7 @@ import numpy as np
 # =============================================================
 #  CONFIGURATION — change the dataset name here to switch
 # =============================================================
-DATASET = "dataset2-5"   # e.g. "dataset1-1", "dataset2-5", "dataset3-3"
+DATASET = "dataset2-7"   # e.g. "dataset1-1", "dataset2-5", "dataset3-3"
 # =============================================================
 
 # Resolve path to the .sql file
@@ -109,18 +109,19 @@ conn.close()
 
 # print(sales_reps)
 
-daily_financials = tables['daily_financials']
+employee_compensation = tables['employee_compensation']
 
-daily_financials['record_date'] = pd.to_datetime(daily_financials['record_date'])
+employee_compensation['dept_avg_salary'] = (
+    employee_compensation.groupby('dept_name')['base_salary'].transform('mean')
+    .round(2)
+)
+employee_compensation['salary_difference']= employee_compensation[
+    'dept_avg_salary'] - employee_compensation['base_salary']
 
-daily_financials['running_cumulative_revenue'] = daily_financials[
-    'daily_revenue'].cumsum()
-
-daily_financials['running_cumulative_subscribers'] = daily_financials[
-    'new_subscribers'].cumsum()
-
-print(daily_financials[['record_date', 
-                       'daily_revenue', 
-                       'running_cumulative_revenue',
-                       'new_subscribers',
-                       'running_cumulative_subscribers']])
+employee_compensation = employee_compensation.sort_values(
+    by=['dept_name','base_salary'], ascending=[True,False])
+print(employee_compensation[['name', 
+                            'dept_name', 
+                            'base_salary', 
+                            'dept_avg_salary', 
+                            'salary_difference']])

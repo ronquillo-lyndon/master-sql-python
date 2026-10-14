@@ -17,3 +17,25 @@ INSERT INTO employee_compensation (emp_id, name, dept_name, base_salary) VALUES
 (6, 'Fiona Apple', 'Marketing', 88000.00),
 (7, 'Gordon Ramsay', 'Marketing', 92000.00),
 (8, 'Hannah Abbott', 'Marketing', 115000.00);
+
+
+WITH employee_compensation_avg as(
+SELECT 
+    *,
+    ROUND(AVG(base_salary) OVER(
+        PARTITION BY dept_name
+        ORDER BY dept_name ASC
+    ),2) AS dept_avg_salary
+FROM
+    employee_compensation
+)
+
+SELECT 
+    name,
+    dept_name,
+    base_salary,
+    dept_avg_salary,
+    ROUND(dept_avg_salary - base_salary) AS 'salary_difference'
+FROM 
+    employee_compensation_avg
+ORDER BY dept_name ASC, base_salary DESC;
